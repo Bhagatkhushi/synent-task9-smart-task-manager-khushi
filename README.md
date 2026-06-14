@@ -71,7 +71,10 @@ http://127.0.0.1:5000
 - Dark Mode Dashboard
 ```
 
----
+### Dashboard
+
+![Output 1](output1.png)
+![Output 2](output2.png)
 
 ## Future Enhancements
 
