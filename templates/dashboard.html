@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+    <div class="navbar">
+    <h2>📋 Smart Task Manager</h2>
+
+    <div class="nav-links">
+    <a href="/profile">👤 {{ username }}</a>
+    <a href="#" id="theme-toggle">🌙 Dark Mode</a>
+    <a href="/logout">🚪 Logout</a>
+</div>
+    </div>
+
+<div class="container">
+
+<h1>My Tasks</h1>
+
+<div class="dashboard-stats">
+
+    <div class="mini-card">
+        <h2>{{ total_tasks }}</h2>
+        <p>📋 Total Tasks</p>
+    </div>
+
+    <div class="mini-card">
+        <h2>{{ pending_count }}</h2>
+        <p>⏳ Pending Tasks</p>
+    </div>
+
+    <div class="mini-card">
+        <h2>{{ completed_count }}</h2>
+        <p>✅ Completed Tasks</p>
+    </div>
+
+</div>
+
+<div class="top-row">
+<div class="welcome-card">
+
+    <h2>👋 Welcome, {{ username }}</h2>
+
+    <p>
+        Manage your tasks efficiently and stay productive.
+    </p>
+
+</div>
+
+    <!-- Search -->
+    <div class="search-card">
+        <form action="/dashboard" method="GET">
+            <input type="text"
+            name="search"
+            placeholder="🔍 Search Task"
+            value="{{ search }}">
+            <button type="submit">Search</button>
+            
+        </form>
+
+    <div class="export-buttons">
+
+        <a href="/export_csv" class="export-btn">
+            📥 Export CSV
+        </a>
+
+        <a href="/export_pdf" class="export-btn pdf-btn">
+            📄 Export PDF
+        </a>
+
+    </div>
+
+        {% if search %}
+
+            {% if search_results %}
+
+            <p style="color:green; font-weight:bold;">
+                ✅ {{ search_results|length }} Task Found
+            </p>
+
+            {% else %}
+
+            <p style="color:red; font-weight:bold;">
+                🔍 No Task Found
+            </p>
+
+            {% endif %}
+
+        {% endif %}
+
+    </div>
+</div>
+    
+<div class="task-card">
+<form action="/add_task" method="POST">
+
+<input type="text"
+       name="task"
+       placeholder="Enter Task"
+       required>
+
+<br><br>
+
+<label><strong>Priority:</strong></label>
+<br>
+
+<select name="priority">
+    <option value="High">🔴 High</option>
+    <option value="Medium" selected>🟡 Medium</option>
+    <option value="Low">🟢 Low</option>
+</select>
+
+<p style="font-size:13px; color:gray;">
+🔴 High = Urgent Task <br>
+🟡 Medium = Important Task <br>
+🟢 Low = Normal Task
+</p>
+
+<br><br>
+
+<label><strong>Due Date:</strong></label>
+<br>
+
+<input type="date" name="due_date">
+
+<p style="font-size:13px; color:gray;">
+📅 Select the last date to complete this task
+</p>
+
+<br><br>
+
+<button type="submit">
+    Add Task
+</button>
+
+</form>
+
+</div>
+
+<h3>Your Tasks</h3>
+
+<ul>
+    {% for task in pending_tasks %}
+
+<li class="{% if task[6] and task[6] < today and task[4] == 0 %}overdue-task{% endif %}">
+<input
+    type="checkbox"
+    onclick="window.location.href='/complete/{{ task[0] }}'"
+    {% if task[4] == 1 %}checked{% endif %}
+>
+
+<div class="task-info">
+    {% if task[4] == 1 %}
+        <s>{{ task[1] }}</s><br>
+    {% else %}
+        <strong>{{ task[1] }}</strong><br>
+    {% endif %}
+
+    <small>{{ task[2] }}</small>
+
+    <br>
+    <small>
+    
+{% if task[6] %}
+📅 Due Date:
+{{ task[6][8:10] }}-{{ task[6][5:7] }}-{{ task[6][0:4] }}
+{% else %}
+📅 Due Date: --
+{% endif %}
+
+</small>
+{% if task[6] and task[6] < today and task[4] == 0 %}
+<br>
+<span style="color:red; font-weight:bold; font-size:13px;">
+⚠️ Overdue
+</span>
+{% endif %}
+
+     <br>
+
+{% if task[5] == "High" %}
+    <span class="priority-high">High</span>
+
+{% elif task[5] == "Medium" %}
+    <span class="priority-medium">Medium</span>
+
+{% else %}
+    <span class="priority-low">Low</span>
+{% endif %}
+
+</div>
+
+<div class="task-actions">
+
+    <a href="/edit/{{ task[0] }}" class="edit-btn">
+        ✏️ Edit
+    </a>
+
+    <a href="/delete/{{ task[0] }}" class="delete-btn">
+        🗑 Delete
+    </a>
+
+</div>
+
+</li>
+
+{% endfor %}
+</ul>
+
+<h3>✅ Completed Tasks</h3>
+
+<ul>
+{% for task in completed_tasks %}
+
+<li class="completed-task">
+
+    <div class="task-info">
+        <strong>{{ task[1] }}</strong><br>
+        <small>{{ task[2] }}</small><br>
+        <span style="color:green;font-weight:bold;">
+            ✅ Completed
+        </span>
+    </div>
+
+    <a href="/delete/{{ task[0] }}" class="delete-btn">
+        🗑 Delete
+    </a>
+
+</li>
+
+{% endfor %}
+</ul>
+
+</div>
+
+<script>
+const toggleBtn = document.getElementById("theme-toggle");
+
+/* Page load hone par check karo */
+if(localStorage.getItem("theme") === "dark"){
+    document.body.classList.add("dark-mode");
+    toggleBtn.innerHTML = "☀️ Light Mode";
+}
+
+toggleBtn.addEventListener("click", function(e){
+    e.preventDefault();
+
+    document.body.classList.toggle("dark-mode");
+
+    if(document.body.classList.contains("dark-mode")){
+        toggleBtn.innerHTML = "☀️ Light Mode";
+        localStorage.setItem("theme", "dark");
+    }else{
+        toggleBtn.innerHTML = "🌙 Dark Mode";
+        localStorage.setItem("theme", "light");
+    }
+});
+</script>
+
+</body>
+</html>
