@@ -76,6 +76,8 @@ http://127.0.0.1:5000
 ![Output 1](output1.png)
 ![Output 2](output2.png)
 
+---
+
 ## Future Enhancements
 
 - Email Verification
