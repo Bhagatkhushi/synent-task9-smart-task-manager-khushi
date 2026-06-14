@@ -59,8 +59,9 @@ http://127.0.0.1:5000
 
 ---
 
-## Sample Output
+## Output
 
+```text
 - Registration Page
 - Login Page
 - Dashboard with Task Statistics
@@ -68,6 +69,7 @@ http://127.0.0.1:5000
 - User Profile Page
 - CSV and PDF Export Functionality
 - Dark Mode Dashboard
+```
 
 ---
 
